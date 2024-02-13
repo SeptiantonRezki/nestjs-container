@@ -1,5 +1,5 @@
 # Stage 1: Build the application
-FROM node: AS build
+FROM node AS build
 WORKDIR /app
 COPY package*.json ./
 RUN npm ci --only=production
