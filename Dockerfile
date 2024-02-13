@@ -1,6 +1,16 @@
-FROM node:alpine AS builder
-RUN apk update && apk add --no-cache git
+# Stage 1: Build the application
+FROM node: AS build
 WORKDIR /app
+COPY package*.json ./
+RUN npm ci --only=production
 COPY . .
-RUN npm i
-RUN npm run test
+RUN npm run build
+
+# Stage 2: Create a smaller image for production
+FROM node:alpine
+WORKDIR /app
+COPY --from=build /app/package*.json ./
+COPY --from=build /app/dist ./dist
+RUN npm ci --only=production
+EXPOSE 3000
+CMD ["node", "dist/main"]
